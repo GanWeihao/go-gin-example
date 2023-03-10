@@ -5,8 +5,8 @@ import (
 	"github.com/GWH/go-gin-example/pkg/setting"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-
 	"log"
+	"time"
 )
 
 var db *gorm.DB
@@ -62,4 +62,22 @@ func createTable() {
 
 func closeDB() {
 	defer db.Close()
+}
+
+func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
+	err := scope.SetColumn("CreatedOn", time.Now().Unix())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
+	err := scope.SetColumn("ModifiedOn", time.Now().Unix())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

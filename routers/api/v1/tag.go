@@ -56,9 +56,13 @@ func AddTags(c *gin.Context) {
 
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
-		if !models.ExistTagName(tag.Name) {
+		if !models.ExistTagByName(tag.Name) {
 			code = e.SUCCESS
-			models.AddTag(tag.Name, tag.CreatedBy, tag.State)
+			err1 := models.AddTag(&tag)
+			if err1 != nil {
+				log.Fatalln(err1)
+				code = e.ERROR
+			}
 		} else {
 			code = e.ERROR_EXIST_TAG
 		}

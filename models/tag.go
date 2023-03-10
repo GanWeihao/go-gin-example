@@ -1,10 +1,5 @@
 package models
 
-import (
-	"github.com/jinzhu/gorm"
-	"time"
-)
-
 type Tag struct {
 	Model
 
@@ -24,33 +19,42 @@ func GetTagTotal(maps interface{}) (count int) {
 	return
 }
 
-func ExistTagName(name string) bool {
-	var tag1 Tag
-	db.Select("id").Where("name = ?", name).First(&tag1)
-	if tag1.ID > 0 {
+func ExistTagById(id int) bool {
+	var tag Tag
+	db.Select("id").Where("id = ?", id).First(&tag)
+	if tag.ID > 0 {
 		return true
 	}
 	return false
 }
 
-func AddTag(name string, createdBy string, state int) bool {
-	db.Create(Tag{
-		Name:      name,
-		CreatedBy: createdBy,
-		State:     state,
-	})
-
-	return true
+func ExistTagByName(name string) bool {
+	var tag Tag
+	db.Select("id").Where("name = ?", name).First(&tag)
+	if tag.ID > 0 {
+		return true
+	}
+	return false
 }
 
-func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("CreatedOn", time.Now().Unix())
+func AddTag(tag *Tag) error {
+	if err := db.Create(tag).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
-	scope.SetColumn("ModifiedOn", time.Now().Unix())
+func DeleteTag(id int) error {
+	if err := db.Where("id = ?", id).Delete(&Tag{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
 
+func EditTag(id int, data interface{}) error {
+	if err := db.Model(&Tag{}).Where("id = ?", id).Updates(data).Error; err != nil {
+		return err
+	}
 	return nil
 }
